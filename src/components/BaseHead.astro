@@ -1,6 +1,7 @@
 ---
 import { HEAD } from '../config/components';
 import type { ISEOMetadata } from '../types/seo';
+import FirstPromoterTracker from './FirstPromoterTracker.astro';
 
 export interface Props extends ISEOMetadata {
     title: string;
@@ -20,11 +21,11 @@ const siteDomain = Astro.url.origin;
     http-equiv="Content-Security-Policy"
     content="
     default-src 'self';
-    script-src 'self' https://plausible.io https://unpkg.com 'unsafe-inline' 'unsafe-eval' blob:;
+    script-src 'self' https://plausible.io https://unpkg.com https://cdn.firstpromoter.com 'unsafe-inline' 'unsafe-eval' blob:;
     style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
-    img-src 'self' data: blob:;
+    img-src 'self' data: blob: https://firstpromoter.com;
     font-src 'self' https://fonts.gstatic.com https://apify.com data:;
-    connect-src 'self' https://plausible.io https://prod.spline.design https://www.gstatic.com https://unpkg.com https://api.github.com;
+    connect-src 'self' https://plausible.io https://prod.spline.design https://www.gstatic.com https://unpkg.com https://api.github.com https://firstpromoter.com;
     base-uri 'self';
     form-action 'self';
     upgrade-insecure-requests;
@@ -123,11 +124,15 @@ const siteDomain = Astro.url.origin;
 
 {
     import.meta.env.MODE === 'production' && (
-        <script
-            defer
-            data-domain="whitepaper.actor"
-            data-category="analytics"
-            src="https://plausible.io/js/script.hash.js"
-        />
+        <>
+            <script
+                defer
+                data-domain="whitepaper.actor"
+                data-category="analytics"
+                src="https://plausible.io/js/script.hash.js"
+            />
+
+            <FirstPromoterTracker />
+        </>
     )
 }

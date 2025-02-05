@@ -1,0 +1,54 @@
+<script
+    defer
+    src="https://cdn.firstpromoter.com/fprom.js"
+    onload="console.log('[FirstPromoter] Script loaded')"
+    onerror="console.error('[FirstPromoter] Failed to load script')"></script>
+
+<script>
+    import { createLogger, type ILogger } from '../utils/logger';
+    const logger: ILogger = createLogger({ prefix: 'FirstPromoter' });
+
+    /**
+     * Track the FirstPromoter referral.
+     *
+     * This function checks if the referral parameter is present in the URL. If it is, it sets the referral in local
+     * storage and removes it from the URL. If the referral parameter is not present, it logs a message.
+     */
+    function trackFirstPromoterReferral() {
+        // Get the referral parameter from the URL.
+        const mainUrlParams = new URLSearchParams(window.location.search);
+        const hashUrlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+        const fprParam = mainUrlParams.get('fpr') || hashUrlParams.get('fpr');
+
+        // If the referral parameter is present, set it in local storage and remove it from the URL.
+        if (fprParam) {
+            localStorage.setItem('fpr_referral', fprParam);
+            logger.info(`Referral tracked: ${fprParam}`);
+
+            // Remove the referral parameter from the URL.
+            if (mainUrlParams.has('fpr')) {
+                // Remove the referral parameter from the URL.
+                mainUrlParams.delete('fpr');
+
+                const newUrl = `${window.location.pathname}${mainUrlParams.toString() ? `?${mainUrlParams.toString()}` : ''}${window.location.hash}`;
+
+                // Replace the current URL with the new URL.
+                window.history.replaceState({}, '', newUrl);
+            } else if (window.location.hash.includes('?')) {
+                // Remove the referral parameter from the URL.
+                hashUrlParams.delete('fpr');
+
+                // Replace the current URL with the new URL.
+                const newHash = window.location.hash.split('?')[0];
+                const newUrl = `${window.location.pathname}${window.location.search}${newHash}${hashUrlParams.toString() ? `?${hashUrlParams.toString()}` : ''}`;
+
+                // Replace the current URL with the new URL.
+                window.history.replaceState({}, '', newUrl);
+            }
+        } else {
+            logger.info('No FirstPromoter referral found, no action taken');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', trackFirstPromoterReferral);
+</script>

@@ -18,6 +18,7 @@ import illuBasicConceptsRunEnvironment from './illu-basic-concepts-docker@2x.gif
 import illuBasicConceptsStorage from './illu-basic-concepts-storage@2x.png';
 import illuBasicConceptsStorageDataset from './illu-basic-concepts-storage-dataset@2x.png';
 import illuBasicConceptsStorageKeyValueStore from './illu-basic-concepts-storage-key-value-store@2x.png';
+import illuDatasetSchema from './illu-dataset-schema@2x.png';
 import illuDefinitionFilesInputSchemaFile from './illu-definition-files-input-schema-file@2x.png';
 import illuDefinitionFilesOutputSchemaFile from './illu-definition-files-output-schema-file@2x.png';
 import illuDevelopmentDeployment from './illu-development-deployment@2x.png';
@@ -34,9 +35,9 @@ import illuTakerInput from './illu-taker-input@2x.png';
 
 <GitHubHeader repoUrl="https://github.com/apify/actor-whitepaper" />
 
-**This whitepaper describes a new concept for building serverless microapps called **_Actors_**, which are easy to develop, share, integrate, and build upon. Actors are a reincarnation of the UNIX philosophy for programs running in the cloud.**
+**This whitepaper describes a new concept for building serverless microapps called **_Actors_**, which are easy to develop, share, integrate, and build upon. Actors are a reincarnation of the UNIX philosophy for programs running in the cloud.**
 
-By [Jan Čurn](https://apify.com/jancurn), [Marek Trunkát](https://apify.com/mtrunkat), [Ondra Urban](https://apify.com/mnmkng), and the [Apify](https://apify.com/store) team.
+By [Jan Čurn](https://apify.com/jancurn), [Marek Trunkát](https://apify.com/mtrunkat), [Ondra Urban](https://apify.com/mnmkng), and the [Apify](https://apify.com/store) team.
 
 Version 0.99 (September 2024)
 
@@ -288,43 +289,39 @@ Below are the steps to start building Actors in various languages and environmen
 You can develop and run Actors in [Apify Console](https://console.apify.com/actors) without installing any software locally. Just create a free Apify account, and start building Actors in an online IDE.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-  <CodeExample title="Node.js">
+The most complete implementation of the Actor system is provided by the Apify SDK for Node.js, via the [apify](https://www.npmjs.com/package/apify) NPM package. The package contains everything that you need to start building Actors locally. You can install it to your Node.js project by running:
 
-    The most complete implementation of the Actor system is provided by the Apify SDK for Node.js, via the [apify](https://www.npmjs.com/package/apify) NPM package. The package contains everything that you need to start building Actors locally. You can install it to your Node.js project by running:
+```bash
+$ npm install apify
+```
 
-    ```bash
-    $ npm install apify
-    ```
+</CodeExample>
+<CodeExample title="Python">
 
-  </CodeExample>
+To build Actors in Python, simply install the Apify SDK for Python, via the [apify](https://pypi.org/project/apify/) PyPi package into your project:
 
-  <CodeExample title="Python">
+```bash
+$ pip3 install apify
+```
 
-    To build Actors in Python, simply install the Apify SDK for Python, via the [apify](https://pypi.org/project/apify/) PyPi package into your project:
+</CodeExample>
+<CodeExample title="CLI">
 
-    ```bash
-    $ pip3 install apify
-    ```
+For local development of Actors and management of the Apify platform, it is handy to install the Apify CLI. You can install it with:
 
-  </CodeExample>
+```bash
+$ brew install apify-cli
+```
 
-  <CodeExample title="CLI">
+or via the [apify-cli](https://www.npmjs.com/package/apify-cli) Node.js package:
 
-    For local development of Actors and management of the Apify platform, it is handy to install the Apify CLI. You can install it with:
+```bash
+$ npm install -g apify-cli
+```
 
-    ```bash
-    $ brew install apify-cli
-    ```
-
-    or via the [apify-cli](https://www.npmjs.com/package/apify-cli) Node.js package:
-
-    ```bash
-    $ npm install -g apify-cli
-    ```
-
-  </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 You can confirm the installation succeeded and log in to the Apify platform by running:
@@ -359,72 +356,67 @@ The SDKs provide convenience methods to initialize the Actor and handle its resu
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+In Node.js the Actor is initialized by calling the `init()` method. It should be paired with an `exit()` method which terminates the Actor. Use of `exit()` is not required, but recommended. For more information go to [Exit Actor](#exit-actor).
 
-        In Node.js the Actor is initialized by calling the `init()` method. It should be paired with an `exit()` method which terminates the Actor. Use of `exit()` is not required, but recommended. For more information go to [Exit Actor](#exit-actor).
+```js
+import { Actor } from 'apify';
 
-        ```js
-        import { Actor } from 'apify';
+await Actor.init();
 
-        await Actor.init();
+const input = await Actor.getInput();
+console.log(input);
 
-        const input = await Actor.getInput();
-        console.log(input);
+await Actor.exit();
+```
 
-        await Actor.exit();
-        ```
+An alternative way of initializing the Actor is with a `main()` function. This is useful in environments where the latest JavaScript syntax and top level awaits are not supported. The main function is only syntax-sugar for `init()` and `exit()`. It will call `init()` before it executes its callback and `exit()` after the callback resolves.
 
-        An alternative way of initializing the Actor is with a `main()` function. This is useful in environments where the latest JavaScript syntax and top level awaits are not supported. The main function is only syntax-sugar for `init()` and `exit()`. It will call `init()` before it executes its callback and `exit()` after the callback resolves.
+```js
+import { Actor } from 'apify';
 
-        ```js
-        import { Actor } from 'apify';
+Actor.main(async () => {
+    const input = await Actor.getInput();
+    // ...
+});
+```
 
-        Actor.main(async () => {
-            const input = await Actor.getInput();
-            // ...
-        });
-        ```
+</CodeExample>
+<CodeExample title="Python">
 
-    </CodeExample>
+```python
+import asyncio
+from apify import Actor
 
-    <CodeExample title="Python">
+async def main():
+  async with Actor:
+    input = await Actor.get_input()
+    print(input)
 
-        ```python
-        import asyncio
-        from apify import Actor
+asyncio.run(main())
+```
 
-        async def main():
-        async with Actor:
-            input = await Actor.get_input()
-            print(input)
+</CodeExample>
+<CodeExample title="CLI">
 
-        asyncio.run(main())
-        ```
+No initialization needed, the process exit terminates the Actor, with the process status code determining whether it succeeded or failed.
 
-    </CodeExample>
+```bash
+$ actor set-status-message "My work is done, friend"
+$ exit 0
+```
 
-    <CodeExample title="CLI">
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-        No initialization needed, the process exit terminates the Actor, with the process status code determining whether it succeeded or failed.
+```c
+int main (int argc, char *argv[]) {
+  ...
+}
+```
 
-        ```bash
-        $ actor set-status-message "My work is done, friend"
-        $ exit 0
-        ```
-
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```c
-        int main (int argc, char *argv[]) {
-        ...
-        }
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Get input
@@ -443,50 +435,45 @@ The input is an object with properties. If the Actor defines the input schema, t
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-  <CodeExample title="Node.js">
+```js
+const input = await Actor.getInput();
+console.log(input);
 
-    ```js
-    const input = await Actor.getInput();
-    console.log(input);
+// prints: { "option1": "aaa", "option2": 456 }
+```
 
-    // prints: { "option1": "aaa", "option2": 456 }
-    ```
+</CodeExample>
+<CodeExample title="Python">
 
-  </CodeExample>
+```python
+input = Actor.get_input()
+print(input)
+```
 
-  <CodeExample title="Python">
+</CodeExample>
+<CodeExample title="CLI">
 
-    ```python
-    input = Actor.get_input()
-    print(input)
-    ```
+```bash
+# Emits a JSON object, which can be parsed e.g. using the "jq" tool
+$ actor get-input | jq
 
-   </CodeExample>
+> { "option1": "aaa", "option2": 456 }
+```
 
-  <CodeExample title="CLI">
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-    ```bash
-    # Emits a JSON object, which can be parsed e.g. using the "jq" tool
-    $ actor get-input | jq
+```bash
+$ command --option1=aaa --option2=bbb
+```
 
-    > { "option1": "aaa", "option2": 456 }
-    ```
+```c
+int main (int argc, char *argv[]) {}
+```
 
-  </CodeExample>
-
-  <CodeExample title="UNIX equivalent">
-
-    ```bash
-    $ command --option1=aaa --option2=bbb
-    ```
-
-    ```c
-    int main (int argc, char *argv[]) {}
-    ```
-
-  </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Key-value store access
@@ -505,48 +492,44 @@ The user can override this behavior and specify another key-value store or input
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-  <CodeExample title="Node.js">
+```js
+// Save objects to the default key-value store
+await Actor.setValue('my_state', { something: 123 }); //  (stringified to JSON)
+await Actor.setValue('screenshot.png', buffer, { contentType: 'image/png' });
 
-    ```js
-    // Save objects to the default key-value store
-    await Actor.setValue('my_state', { something: 123 }); //  (stringified to JSON)
-    await Actor.setValue('screenshot.png', buffer, { contentType: 'image/png' });
+// Get record from the default key-value store, automatically parsed from JSON
+const value = await Actor.getValue('my_state');
 
-    // Get record from the default key-value store, automatically parsed from JSON
-    const value = await Actor.getValue('my_state');
+// Access another key-value store by its name
+const store = await Actor.openKeyValueStore('screenshots-store');
+const imageBuffer = await store.getValue('screenshot.png');
+```
 
-    // Access another key-value store by its name
-    const store = await Actor.openKeyValueStore('screenshots-store');
-    const imageBuffer = await store.getValue('screenshot.png');
-    ```
+</CodeExample>
+<CodeExample title="Python">
 
-  </CodeExample>
+```python
+# Save object to store (stringified to JSON)
+await Actor.set_value('my-state', { 'something': 123 })
 
-  <CodeExample title="Python">
+# Save binary file to store with content type
+await Actor.set_value('screenshot', buffer, content_type='image/png')
 
-    ```python
-    # Save object to store (stringified to JSON)
-    await Actor.set_value('my-state', { 'something': 123 })
+# Get object from store (automatically parsed from JSON)
+state = await Actor.get_value('my-state')
+```
 
-    # Save binary file to store with content type
-    await Actor.set_value('screenshot', buffer, content_type='image/png')
+</CodeExample>
+<CodeExample title="UNIX">
 
-    # Get object from store (automatically parsed from JSON)
-    state = await Actor.get_value('my-state')
-    ```
+```bash
+$ echo "hello world" > file.txt
+$ cat file.txt
+```
 
-  </CodeExample>
-
-  <CodeExample title="UNIX">
-
-    ```bash
-    $ echo "hello world" > file.txt
-    $ cat file.txt
-    ```
-
-  </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Push results to dataset
@@ -565,64 +548,59 @@ Note that datasets can optionally be equipped with schema that ensures only cert
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+// Append result object to the default dataset associated with the run
+await Actor.pushData({
+    someResult: 123
+});
 
-        ```js
-        // Append result object to the default dataset associated with the run
-        await Actor.pushData({
-            someResult: 123
-        });
+// Append result object to a specific named dataset
+const dataset = await Actor.openDataset('bob/poll-results-2019');
+await dataset.pushData({ someResult: 123 });
+```
 
-        // Append result object to a specific named dataset
-        const dataset = await Actor.openDataset('bob/poll-results-2019');
-        await dataset.pushData({ someResult: 123 });
-        ```
+</CodeExample>
+<CodeExample title="Python">
 
-    </CodeExample>
+```python
+# Append result object to the default dataset associated with the run
+await Actor.push_data({ 'some_result': 123 })
 
-    <CodeExample title="Python">
+# Append result object to a specific named dataset
+dataset = await Actor.open_dataset('bob/poll-results-2019')
+await dataset.push_data({ 'some_result': 123 })
+```
 
-        ```python
-        # Append result object to the default dataset associated with the run
-        await Actor.push_data({ 'some_result': 123 })
+</CodeExample>
+<CodeExample title="CLI">
 
-        # Append result object to a specific named dataset
-        dataset = await Actor.open_dataset('bob/poll-results-2019')
-        await dataset.push_data({ 'some_result': 123 })
-        ```
+```bash
+# Push data to default dataset, in JSON format
+$ echo '{ "someResult": 123 }' | actor push-data --json
+$ actor push-data --json='{ "someResult": 123 }'
+$ actor push-data --json=@result.json
 
-    </CodeExample>
+# Push data to default dataset, in text format
+$ echo "someResult=123" | actor push-data
+$ actor push-data someResult=123
 
-    <CodeExample title="CLI">
+# Push to a specific dataset in the cloud
+$ actor push-data --dataset=bob/election-data someResult=123
 
-        ```bash
-        # Push data to default dataset, in JSON format
-        $ echo '{ "someResult": 123 }' | actor push-data --json
-        $ actor push-data --json='{ "someResult": 123 }'
-        $ actor push-data --json=@result.json
+# Push to dataset on local system
+$ actor push-data --dataset=./my_dataset someResult=123
+```
 
-        # Push data to default dataset, in text format
-        $ echo "someResult=123" | actor push-data
-        $ actor push-data someResult=123
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-        # Push to a specific dataset in the cloud
-        $ actor push-data --dataset=bob/election-data someResult=123
+```c
+printf("Hello world\tColum 2\tColumn 3");
+```
 
-        # Push to dataset on local system
-        $ actor push-data --dataset=./my_dataset someResult=123
-        ```
-
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```c
-        printf("Hello world\tColum 2\tColumn 3");
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Exit Actor
@@ -638,67 +616,61 @@ A preferred way to exit an Actor intentionally is using the `exit` or `fail` fun
 - The SDK emits the `exit` event, which can be listened to and used by various components of the Actor to perform a cleanup, persist state, etc. Note that the caller of exit can specify how long should the system wait for all `exit` event handlers to complete before closing the process, using the `timeoutSecs` option. For details, see [System Events](#system-events).
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+// Actor will finish with 'SUCCEEDED' status
+await Actor.exit('Succeeded, crawled 50 pages');
 
-        ```js
-        // Actor will finish with 'SUCCEEDED' status
-        await Actor.exit('Succeeded, crawled 50 pages');
+// Exit right away without calling `exit` handlers at all
+await Actor.exit('Done right now', { timeoutSecs: 0 });
 
-        // Exit right away without calling `exit` handlers at all
-        await Actor.exit('Done right now', { timeoutSecs: 0 });
+// Actor will finish with 'FAILED' status
+await Actor.exit('Could not finish the crawl, try increasing memory', { exitCode: 1 });
 
-        // Actor will finish with 'FAILED' status
-        await Actor.exit('Could not finish the crawl, try increasing memory', { exitCode: 1 });
+// ... or nicer way using this syntactic sugar:
+await Actor.fail('Could not finish the crawl, try increasing memory');
 
-        // ... or nicer way using this syntactic sugar:
-        await Actor.fail('Could not finish the crawl, try increasing memory');
+// Register a handler to be called on exit.
+// Note that the handler has `timeoutSecs` to finish its job
+Actor.on('exit', ({ statusMessage, exitCode, timeoutSecs }) => {
+    // Perform cleanup...
+});
+```
 
-        // Register a handler to be called on exit.
-        // Note that the handler has `timeoutSecs` to finish its job
-        Actor.on('exit', ({ statusMessage, exitCode, timeoutSecs }) => {
-            // Perform cleanup...
-        });
-        ```
+</CodeExample>
+<CodeExample title="Python">
 
-    </CodeExample>
+```python
+# Actor will finish in 'SUCCEEDED' state
+await Actor.exit('Generated 14 screenshots')
 
-    <CodeExample title="Python">
+# Actor will finish in 'FAILED' state
+await Actor.exit('Could not finish the crawl, try increasing memory', exit_code=1)
+# ... or nicer way using this syntactic sugar:
+await Actor.fail('Could not finish the crawl, try increasing memory');
+```
 
-    ```python
-    # Actor will finish in 'SUCCEEDED' state
-    await Actor.exit('Generated 14 screenshots')
+</CodeExample>
+<CodeExample title="CLI">
 
-    # Actor will finish in 'FAILED' state
-    await Actor.exit('Could not finish the crawl, try increasing memory', exit_code=1)
+```bash
+# Actor will finish in 'SUCCEEDED' state
+$ actor exit
+$ actor exit --message "Email sent"
 
-    # ... or nicer way using this syntactic sugar:
-    await Actor.fail('Could not finish the crawl, try increasing memory');
-    ```
+# Actor will finish in 'FAILED' state
+$ actor exit --code=1 --message "Couldn't fetch the URL"
+```
 
-    </CodeExample>
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-    <CodeExample title="CLI">
+```c
+exit(1);
+```
 
-        ```bash
-        # Actor will finish in 'SUCCEEDED' state
-        $ actor exit
-        $ actor exit --message "Email sent"
-
-        # Actor will finish in 'FAILED' state
-        $ actor exit --code=1 --message "Couldn't fetch the URL"
-        ```
-
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```c
-        exit(1);
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Environment variables
@@ -733,36 +705,32 @@ The Actor developer can also define custom environment variables that are then p
 The environment variables can be set as secure in order to protect sensitive data such as API keys or passwords. The value of a secure environment variable is encrypted and can only be retrieved by the Actors during their run, but not outside runs. Furthermore, values of secure environment variables are omitted from the log.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+For convenience, rather than using environment vars directly, we provide a `Configuration` class that allows reading and updating the Actor configuration.
 
-        For convenience, rather than using environment vars directly, we provide a `Configuration` class that allows reading and updating the Actor configuration.
+```javascript
+const token = Actor.config.get('token');
 
-        ```javascript
-        const token = Actor.config.get('token');
+// use different token
+Actor.config.set('token', 's0m3n3wt0k3n');
+```
 
-        // use different token
-        Actor.config.set('token', 's0m3n3wt0k3n');
-        ```
+</CodeExample>
+<CodeExample title="CLI">
 
-    </CodeExample>
+```bash
+$ echo "$ACTOR_RUN_ID started at $ACTOR_STARTED_AT"
+```
 
-    <CodeExample title="CLI">
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-        ```bash
-        $ echo "$ACTOR_RUN_ID started at $ACTOR_STARTED_AT"
-        ```
+```bash
+$ echo $ACTOR_RUN_ID
+```
 
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```bash
-        $ echo $ACTOR_RUN_ID
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Actor status
@@ -789,37 +757,33 @@ When an Actor exits, the status message is either automatically set to some defa
 When the Actor is running, it should periodically update the status message as follows, to keep users informed and happy. The function can be called as often as necessary, the SDK only invokes API if status changed. This is to simplify usage.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+await Actor.setStatusMessage('Crawled 45 of 100 pages');
 
-        ```js
-        await Actor.setStatusMessage('Crawled 45 of 100 pages');
+// Setting status message to other Actor externally is also possible
+await Actor.setStatusMessage('Everyone is well', { actorRunId: 123 });
+```
 
-        // Setting status message to other Actor externally is also possible
-        await Actor.setStatusMessage('Everyone is well', { actorRunId: 123 });
-        ```
+</CodeExample>
+<CodeExample title="Python">
 
-    </CodeExample>
+```python
+await Actor.set_status_message('Crawled 45 of 100 pages')
+```
 
-    <CodeExample title="Python">
+</CodeExample>
+<CodeExample title="CLI">
 
-        ```python
-        await Actor.set_status_message('Crawled 45 of 100 pages')
-        ```
+```bash
+$ actor set-status-message "Crawled 45 of 100 pages"
+$ actor set-status-message --run=[RUN_ID] --token=X "Crawled 45 of 100 pages"
+```
 
-    </CodeExample>
+Convention: The end user of an Actor should never need to look into the log to understand what happened, e.g. why the Actor failed. All necessary information must be set by the Actor in the status message.
 
-    <CodeExample title="CLI">
-
-        ```bash
-        $ actor set-status-message "Crawled 45 of 100 pages"
-        $ actor set-status-message --run=[RUN_ID] --token=X "Crawled 45 of 100 pages"
-        ```
-
-        Convention: The end user of an Actor should never need to look into the log to understand what happened, e.g. why the Actor failed. All necessary information must be set by the Actor in the status message.
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### System events
@@ -855,54 +819,50 @@ Under the hood, Actors receive system events by connecting to a web socket addre
 Note that some events (e.g. `persistState`) are not sent by the system via the web socket, but generated virtually on the Actor SDK level.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+// Add event handler
+const handler = (data) => {
+    if (data.isCpuOverloaded) console.log('Oh no, we need to slow down!');
+};
+Actor.on('systemInfo', handler);
 
-        ```js
-        // Add event handler
-        const handler = (data) => {
-            if (data.isCpuOverloaded) console.log('Oh no, we need to slow down!');
-        };
-        Actor.on('systemInfo', handler);
+// Remove all handlers for a specific event
+Actor.off('systemInfo');
 
-        // Remove all handlers for a specific event
-        Actor.off('systemInfo');
+// Remove a specific event handler
+Actor.off('systemInfo', handler);
+```
 
-        // Remove a specific event handler
-        Actor.off('systemInfo', handler);
-        ```
+</CodeExample>
+<CodeExample title="Python">
 
-    </CodeExample>
+```python
+from apify import Actor, Event
 
-    <CodeExample title="Python">
+# Add event handler
+async def handler(data):
+  if data.cpu_info.is_overloaded:
+    print('Oh no, we need to slow down!')
 
-        ```python
-        from apify import Actor, Event
+Actor.on(Event.SYSTEM_INFO, handler);
 
-        # Add event handler
-        async def handler(data):
-          if data.cpu_info.is_overloaded:
-            print('Oh no, we need to slow down!')
+# Remove all handlers for a specific event
+Actor.off(Event.SYSTEM_INFO);
 
-        Actor.on(Event.SYSTEM_INFO, handler);
+# Remove a specific event handler
+Actor.off(Event.SYSTEM_INFO, handler);
+```
 
-        # Remove all handlers for a specific event
-        Actor.off(Event.SYSTEM_INFO);
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-        # Remove a specific event handler
-        Actor.off(Event.SYSTEM_INFO, handler);
-        ```
+```c
+signal(SIGINT, handle_sigint);
+```
 
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```c
-        signal(SIGINT, handle_sigint);
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Get memory information
@@ -910,24 +870,21 @@ Note that some events (e.g. `persistState`) are not sent by the system via the w
 Get information about the total and available memory of the Actor’s container or local system. This is useful to, for example, auto-scale a pool of workers used for crawling large websites.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+const memoryInfo = await Actor.getMemoryInfo();
+```
 
-        ```js
-        const memoryInfo = await Actor.getMemoryInfo();
-        ```
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-    </CodeExample>
+```bash
+# Print memory usage of programs
+$ ps -a
+```
 
-    <CodeExample title="UNIX equivalent">
-
-        ```bash
-        # Print memory usage of programs
-        $ ps -a
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Start another Actor
@@ -946,81 +903,75 @@ The Actor can override the default dataset or key-value store, and, e.g. forward
 The `call` operation waits for the other Actor to finish, the `start` operation returns immediately.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+// Start Actor and return a Run object
+const run = await Actor.start(
+    'apify/google-search-scraper', // name of the Actor to start
+    { queries: 'test' }, // input of the Actor
+    { memory: 2048 } // run configuration
+);
 
-        ```js
-        // Start Actor and return a Run object
-        const run = await Actor.start(
-            'apify/google-search-scraper', // name of the Actor to start
-            { queries: 'test' }, // input of the Actor
-            { memory: 2048 } // run configuration
-        );
+// Start Actor and wait for it to finish
+const run2 = await Actor.call('apify/google-search-scraper', { queries: 'test' }, { memory: 2048 });
+```
 
-        // Start Actor and wait for it to finish
-        const run2 = await Actor.call('apify/google-search-scraper', { queries: 'test' }, { memory: 2048 });
-        ```
+</CodeExample>
+<CodeExample title="CLI">
 
-    </CodeExample>
+```bash
+# On stdout, the commands emit Actor run object (in text or JSON format),
+# we shouldn't wait for finish, for that it should be e.g. "execute"
+$ apify call apify/google-search-scraper queries='test\ntest2' \
+  countryCode='US'
+$ apify call --json apify/google-search-scraper '{ "queries": }'
+$ apify call --input=@data.json --json apify/google-search-scraper
+$ apify call --memory=1024 --build=beta apify/google-search-scraper
+$ apify call --output-record-key=SCREENSHOT apify/google-search-scraper
 
-    <CodeExample title="CLI">
+# Pass input from stdin
+$ cat input.json | actor call apify/google-search-scraper --json
 
-        ```bash
-        # On stdout, the commands emit Actor run object (in text or JSON format),
-        # we shouldn't wait for finish, for that it should be e.g. "execute"
-        $ apify call apify/google-search-scraper queries='test\ntest2' \
-          countryCode='US'
-        $ apify call --json apify/google-search-scraper '{ "queries": }'
-        $ apify call --input=@data.json --json apify/google-search-scraper
-        $ apify call --memory=1024 --build=beta apify/google-search-scraper
-        $ apify call --output-record-key=SCREENSHOT apify/google-search-scraper
+# Call local actor during development
+$ apify call file:../some-dir someInput='xxx'
+```
 
-        # Pass input from stdin
-        $ cat input.json | actor call apify/google-search-scraper --json
+</CodeExample>
+<CodeExample title="Slack">
 
-        # Call local actor during development
-        $ apify call file:../some-dir someInput='xxx'
-        ```
+It will also be possible to run Actors from the Slack app. The following command starts the Actor, and then prints the messages to a Slack channel.
 
-    </CodeExample>
+```
+/apify start bob/google-search-scraper startUrl=afff
+```
 
-    <CodeExample title="Slack">
+</CodeExample>
+<CodeExample title="API">
 
-        It will also be possible to run Actors from the Slack app. The following command starts the Actor, and then prints the messages to a Slack channel.
+```
+[POST] https://api.apify.com/v2/actors/apify~google-search-scraper/run
 
-        ```
-        /apify start bob/google-search-scraper startUrl=afff
-        ```
+[POST|GET] https://api.apify.com/v2/actors/apify~google-search-scraper/run-sync?
+  token=rWLaYmvZeK55uatRrZib4xbZs&
+  outputRecordKey=OUTPUT
+  returnDataset=true
+```
 
-    </CodeExample>
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-    <CodeExample title="API">
+```bash
+# Run a program in the background
+$ command <arg1>, <arg2>, … &
+```
 
-        ```
-        [POST] https://api.apify.com/v2/actors/apify~google-search-scraper/run
+```c
+// Spawn another process
+posix_spawn();
+```
 
-        [POST|GET] https://api.apify.com/v2/actors/apify~google-search-scraper/run-sync?
-          token=rWLaYmvZeK55uatRrZib4xbZs&
-          outputRecordKey=OUTPUT
-          returnDataset=true
-        ```
-
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```bash
-        # Run a program in the background
-        $ command <arg1>, <arg2>, … &
-        ```
-
-        ```c
-        // Spawn another process
-        posix_spawn();
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Metamorph
@@ -1039,33 +990,29 @@ The target Actor inherits the default storages used by the calling Actor. The ta
 An Actor can metamorph only to Actors that have compatible output schema as the main Actor, in order to ensure logical and consistent outcomes for users. If the output schema of the target Actor is not compatible, the system should throw an error.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+await Actor.metamorph('bob/web-scraper', { startUrls: ['https://www.example.com'] }, { memoryMbytes: 4096 });
+```
 
-        ```js
-        await Actor.metamorph('bob/web-scraper', { startUrls: ['https://www.example.com'] }, { memoryMbytes: 4096 });
-        ```
+</CodeExample>
+<CodeExample title="CLI">
 
-    </CodeExample>
+```bash
+$ actor metamorph bob/web-scraper startUrls=http://example.com
+$ actor metamorph --input=@input.json --json --memory=4096 \
+  bob/web-scraper
+```
 
-    <CodeExample title="CLI">
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-        ```bash
-        $ actor metamorph bob/web-scraper startUrls=http://example.com
-        $ actor metamorph --input=@input.json --json --memory=4096 \
-          bob/web-scraper
-        ```
+```bash
+$ exec /bin/bash
+```
 
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```bash
-        $ exec /bin/bash
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Attach webhook to an Actor run
@@ -1075,55 +1022,51 @@ Run another Actor or an external HTTP API endpoint after an Actor run finishes o
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+await Actor.addWebhook({
+    eventType: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
+    requestUrl: 'http://api.example.com?something=123',
+    payloadTemplate: `{
+        "userId": {{userId}},
+        "createdAt": {{createdAt}},
+        "eventType": {{eventType}},
+        "eventData": {{eventData}},
+        "resource": {{resource}}
+    }`
+});
+```
 
-        ```js
-        await Actor.addWebhook({
-            eventType: ['ACTOR.RUN.SUCCEEDED', 'ACTOR.RUN.FAILED'],
-            requestUrl: 'http://api.example.com?something=123',
-            payloadTemplate: `{
-                "userId": {{userId}},
-                "createdAt": {{createdAt}},
-                "eventType": {{eventType}},
-                "eventData": {{eventData}},
-                "resource": {{resource}}
-            }`
-        });
-        ```
+</CodeExample>
+<CodeExample title="CLI">
 
-    </CodeExample>
+```bash
+$ actor add-webhook \\
+  --event-types=ACTOR.RUN.SUCCEEDED,ACTOR.RUN.FAILED \\
+  --request-url=https://api.example.com \\
+  --payload-template='{ "test": 123" }'
 
-    <CodeExample title="CLI">
+$ actor add-webhook --event-types=ACTOR.RUN.SUCCEEDED \\
+  --request-actor=apify/send-mail \\
+  --memory=4096 --build=beta \\
+  --payload-template=@template.json
 
-        ```bash
-        $ actor add-webhook \\
-          --event-types=ACTOR.RUN.SUCCEEDED,ACTOR.RUN.FAILED \\
-          --request-url=https://api.example.com \\
-          --payload-template='{ "test": 123" }'
+# Or maybe have a simpler API for self-actor?
+$ actor add-webhook --event-types=ACTOR.RUN.SUCCEEDED --request-actor=apify/send-mail
+```
 
-        $ actor add-webhook --event-types=ACTOR.RUN.SUCCEEDED \\
-          --request-actor=apify/send-mail \\
-          --memory=4096 --build=beta \\
-          --payload-template=@template.json
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-        # Or maybe have a simpler API for self-actor?
-        $ actor add-webhook --event-types=ACTOR.RUN.SUCCEEDED --request-actor=apify/send-mail
-        ```
+```bash
+# Execute commands sequentially, based on their status
+$ command1; command2    # (command separator)
+$ command1 && command2  # ("andf" symbol)
+$ command1 || command2  # ("orf" symbol)
+```
 
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```bash
-        # Execute commands sequentially, based on their status
-        $ command1; command2    # (command separator)
-        $ command1 && command2  # ("andf" symbol)
-        $ command1 || command2  # ("orf" symbol)
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Abort another Actor
@@ -1133,32 +1076,28 @@ Abort itself or another Actor running on the Apify platform. Aborting an Actor c
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+await Actor.abort({ statusMessage: 'Your job is done, friend.', actorRunId: 'RUN_ID' });
+```
 
-        ```js
-        await Actor.abort({ statusMessage: 'Your job is done, friend.', actorRunId: 'RUN_ID' });
-        ```
+</CodeExample>
+<CodeExample title="CLI">
 
-    </CodeExample>
+```bash
+$ actor abort --run-id RUN_ID
+```
 
-    <CodeExample title="CLI">
+</CodeExample>
+<CodeExample title="UNIX equivalent">
 
-        ```bash
-        $ actor abort --run-id RUN_ID
-        ```
+```bash
+# Terminate a program
+$ kill <PID>
+```
 
-    </CodeExample>
-
-    <CodeExample title="UNIX equivalent">
-
-        ```bash
-        # Terminate a program
-        $ kill <PID>
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Reboot an Actor
@@ -1177,31 +1116,27 @@ Normally, if an Actor crashes, the system also restarts its container, but if th
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+await Actor.reboot();
+```
 
-        ```js
-        await Actor.reboot();
-        ```
+</CodeExample>
+<CodeExample title="Python">
 
-    </CodeExample>
+```python
+await Actor.reboot()
+```
 
-    <CodeExample title="Python">
+</CodeExample>
+<CodeExample title="CLI">
 
-        ```python
-        await Actor.reboot()
-        ```
+```bash
+$ actor reboot
+```
 
-    </CodeExample>
-
-    <CodeExample title="CLI">
-
-        ```bash
-        $ actor reboot
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Actor web server
@@ -1223,29 +1158,27 @@ The live view URL has a unique hostname, which is practically impossible to gues
     position="left"
     image={illuAPIWebServer}
     noCaption
-      />
+/>
 
 <div class="clear-both" />
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+const express = require('express');
+const app = express();
 
-        ```js
-        const express = require('express');
-        const app = express();
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
 
-        app.get('/', (req, res) => {
-            res.send('Hello World!');
-        });
+app.listen(process.env.ACTOR_WEB_SERVER_PORT, () => {
+    console.log(`Example live view web server running at ${process.env.ACTOR_WEB_SERVER_URL}`);
+});
+```
 
-        app.listen(process.env.ACTOR_WEB_SERVER_PORT, () => {
-            console.log(`Example live view web server running at ${process.env.ACTOR_WEB_SERVER_URL}`);
-        });
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 ### Standby mode
@@ -1290,84 +1223,73 @@ When a paid Actor subsequently starts another paid Actor, the charges performed 
 An Actor developer can also charge the current user of an Actor a specific amount of USD.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+const chargeInfo = await Actor.charge({
+    eventName: 'gpt-4o-token',
+    count: 1000,
+    chargePerEventUsd: 0.0001
+});
+```
 
-        ```js
-        const chargeInfo = await Actor.charge({
-            eventName: 'gpt-4o-token',
-            count: 1000,
-            chargePerEventUsd: 0.0001
-        });
-        ```
+</CodeExample>
+<CodeExample title="Python">
+```python
+charge_info = await Actor.charge(
+  event_name='gpt-4o-token',
+  count=1000,
+  charge_per_event_usd=0.0001
+)
+```
 
-    </CodeExample>
+</CodeExample>
+<CodeExample title="CLI">
+```bash
+$ actor charge gpt-4o-token \
+  --count=1000
+  --chargePerEventUsd=0.0001
+```
 
-    <CodeExample title="Python">
-
-        ```python
-        charge_info = await Actor.charge(
-          event_name='gpt-4o-token',
-          count=1000,
-          charge_per_event_usd=0.0001
-        )
-        ```
-
-    </CodeExample>
-
-    <CodeExample title="CLI">
-
-        ```bash
-        $ actor charge gpt-4o-token \
-          --count=1000
-          --chargePerEventUsd=0.0001
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 An Actor user can specify the maximum amount they are willing to pay when starting an Actor.
 
 <CodeSwitcher>
+<CodeExample title="Node.js">
 
-    <CodeExample title="Node.js">
+```js
+const run = await Actor.call(
+    'bob/analyse-images',
+    { imageUrls: ['https://www.example.com/image.png'] },
+    {
+        // By default this is 0, hence Actors cannot charge users unless they explicitly allow that.
+        maxTotalChargeUsd: 5
+    }
+);
+```
 
-        ```js
-        const run = await Actor.call(
-            'bob/analyse-images',
-            { imageUrls: ['https://www.example.com/image.png'] },
-            {
-                // By default this is 0, hence Actors cannot charge users unless they explicitly allow that.
-                maxTotalChargeUsd: 5
-            }
-        );
-        ```
+</CodeExample>
+<CodeExample title="Python">
 
-    </CodeExample>
+```python
+run = await Actor.call(
+    'bob/analyse-images' ,
+    {'imageUrls': ['https://www.example.com/image.png']},
+    max_total_charge_usd=5
+)
+```
 
-    <CodeExample title="Python">
+</CodeExample>
+<CodeExample title="CLI">
+```bash
+$ actor call bob/analyse-images \
+  --input='{"imageUrls": ["https://www.example.com/image.png"]}'
+  --max-total-charge-usd=5
+```
 
-        ```python
-        run = await Actor.call(
-            'bob/analyse-images' ,
-            {'imageUrls': ['https://www.example.com/image.png']},
-            max_total_charge_usd=5
-        )
-        ```
-
-    </CodeExample>
-
-    <CodeExample title="CLI">
-
-        ```bash
-        $ actor call bob/analyse-images \
-          --input='{"imageUrls": ["https://www.example.com/image.png"]}'
-          --max-total-charge-usd=5
-        ```
-
-    </CodeExample>
-
+</CodeExample>
 </CodeSwitcher>
 
 #### Rules for building Actors with variable charging

@@ -1,11 +1,41 @@
 import { Picture } from 'astro:assets';
+import CodeExample from '../../components/CodeExample.astro';
+import CodeSwitcher from '../../components/CodeSwitcher.astro';
+import Diagram from '../../components/Diagram.astro';
+import GitHubHeader from '../../components/GitHubHeader.astro';
+import illuApifyStore from './illu-apify-store@2x.png';
+import illuAPIGetInput from './illu-get-input@2x.png';
+import illuAPIKeyValueStoreAccess from './illu-api-key-value-store-access@2x.png';
+import illuAPIMetamorph from './illu-api-metamorph@2x.gif';
+import illuAPIPush from './illu-api-push@2x.gif';
+import illuAPIReboot from './illu-api-reboot@2x.png';
+import illuAPIStartAnother from './illu-api-start-another@2x.png';
+import illuAPIWebServer from './illu-api-webserver@2x.gif';
+import illuBasicConceptsInput from './illu-basic-concepts-input@2x.gif';
+import illuBasicConceptsIntegrations from './illu-basic-concepts-integrations@2x.png';
+import illuBasicConceptsOutput from './illu-basic-concepts-output@2x.gif';
+import illuBasicConceptsRunEnvironment from './illu-basic-concepts-docker@2x.gif';
+import illuBasicConceptsStorage from './illu-basic-concepts-storage@2x.png';
+import illuBasicConceptsStorageDataset from './illu-basic-concepts-storage-dataset@2x.png';
+import illuBasicConceptsStorageKeyValueStore from './illu-basic-concepts-storage-key-value-store@2x.png';
 import illuDatasetSchema from './illu-dataset-schema@2x.png';
+import illuDefinitionFilesInputSchemaFile from './illu-definition-files-input-schema-file@2x.png';
+import illuDefinitionFilesOutputSchemaFile from './illu-definition-files-output-schema-file@2x.png';
+import illuDevelopmentDeployment from './illu-development-deployment@2x.png';
+import illuDevelopmentLocal from './illu-development-local@2x.png';
+import illuDiagramHoriz from './illu-diagram-horiz@2x.png';
+import illuDiagramVert from './illu-diagram-vert@2x.png';
+import illuPhilosophyWhyTheName from './illu-philosophy-why-the-name@2x.png';
+import illuSharingChargingMoney from './illu-sharing-charging-money@2x.gif';
+import illuSharingMonetization from './illu-sharing-monetization@2x.png';
+import Illustration from '../../components/Illustration.astro';
+import illuTakerInput from './illu-taker-input@2x.png';
 
 # Dataset schema file specification 1.0
 
 Dataset storage enables you to sequentially store and retrieve data records, in various formats. Each Actor run is assigned its own dataset, which is created when the first item is stored to it. Datasets usually contain results from web scraping, crawling or data processing jobs. The data can be visualized as a table where each object is a row and its attributes are the columns. The data can be exported in JSON, CSV, XML, RSS, Excel, or HTML formats.
 
-The specification is also at [Apify documentation](https://docs.apify.com/platform/actors/development/actor-definition/output-schema).
+The specification is also at https://docs.apify.com/platform/actors/development/actor-definition/output-schema
 
 Dataset can be assigned a schema which describes:
 
@@ -22,7 +52,7 @@ Dataset can be assigned a schema which describes:
 
 There are two ways how to create a dataset with schema:
 
-1. User can start the Actor that has dataset schema linked from its [Output schema](/output-schema)
+1. User can start the Actor that has dataset schema linked from its [Output Schema](/output-schema)
 2. Or user can do it pragmatically via API (for empty dataset) by
 
     - either by passing the schema as payload to [create dataset](https://docs.apify.com/api#/reference/datasets/dataset-collection/create-dataset) API endpoint.

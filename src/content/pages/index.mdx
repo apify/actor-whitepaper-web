@@ -51,7 +51,7 @@ Actors were first introduced by [Apify](https://apify.com/) in late 2017, as a w
 
 Building on this experience, we're releasing this whitepaper to introduce the philosophy of Actors to other developers and receive your feedback on it. We aim to establish the Actor programming model as an open standard, which will help the community to more effectively build and ship reusable software automation tools, as well as encourage new implementations of the model in other programming languages.
 
-The goal of this whitepaper is to be the North star that shows what the Actor programming model is and what operations it should support. But this document is not an official specification. The specification will be an OpenAPI schema of the Actor system interface, to enable new independent implementations of both the client libraries and backend systems. This is currently work in progress.
+The goal of this whitepaper is to be the North Star that shows what the Actor programming model is and what operations it should support. But this document is not an official specification. The specification will be an OpenAPI schema of the Actor system interface, to enable new independent implementations of both the client libraries and backend systems. This is currently a work in progress.
 
 Currently, the most complete implementation of the Actor model is provided by the Apify platform, with SDKs for [Node.js](https://sdk.apify.com/) and [Python](https://pypi.org/project/apify/), and a [command-line interface (CLI)](https://docs.apify.com/cli). Beware that the frameworks might not yet implement all the features of the Actor programming model described in this whitepaper.
 
@@ -94,7 +94,7 @@ This section describes core features of Actors, what they are good for, and how 
 
 Each Actor accepts an **input object**, which tells it what it should do. The object is passed in JSON format, and its properties have a similar role as command-line arguments when running a program in a UNIX-like operating system.
 
-For example, an input object for an Actor `bob/screenshotter` can look like this:
+For example, an input object for an Actor `bob/screenshotter` could look like this:
 
 ```json
 {
@@ -145,7 +145,7 @@ You can define how the Actor output looks using the [Output schema file](#output
 
 <div class="clear-both" />
 
-The output object is similar to the input object, as it contains properties and values. For example, for the `bob/screenshotter` Actor, the output object can look like this:
+The output object is similar to the input object, as it contains properties and values. For example, for the `bob/screenshotter` Actor, the output object could look like this:
 
 ```jsonc
 {

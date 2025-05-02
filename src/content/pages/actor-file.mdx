@@ -106,9 +106,18 @@ The file has the following structure:
     // and integrations to integrate the Actor from AI/LLM systems.
     "webServerMcpPath": "/mcp?someVar=1",
 
-    // Scripts that might be used by the CLI tools to simplify the local Actor development.
+    // Scripts can be used by tools like the CLI to do certain actions based on the commands you run.
+    // The presence of this object in your Actor config is optional, but we recommend always defining at least the `run` key.
     "scripts": {
-        "post-create": "npm install",
+        // The `run` script is special - it defines *the* way to run your Actor locally. While tools can decide
+        // to implement mechanisms to detect what type of project your Actor is, and how to run it, you can choose to
+        // define this as the source of truth.
+        //
+        // This should be the same command you run as if you were at the root of your Actor when you start it locally.
+        // This can be anything from an npm script, as shown below, to a full chain of commands (ex.: `cargo test && cargo run --release`).
+        //
+        // CLIs may opt to also request this command when initializing a new Actor, or to automatically migrate and add it in the first time
+        // you start the Actor locally.
         "run": "npm start"
     }
 }

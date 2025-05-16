@@ -84,6 +84,21 @@
         @apply mb-3 leading-[1.35rem] lg:text-base lg:leading-[1.68rem];
     }
 
+    & p,
+    & ol,
+    & ul,
+    & table,
+    & blockquote {
+        @apply md:max-w-3xl md:mx-auto;
+    }
+
+    & h1,
+    & h2,
+    & h3,
+    & h4 {
+        @apply md:max-w-3xl md:mx-auto md:px-0;
+    }
+
     & ul li {
         @apply relative before:absolute before:left-[-1.4em] before:content-['→'];
     }

@@ -611,6 +611,16 @@ When the main Actor process exits and the Docker container stops running, the Ac
 
 In the event of a non-zero exit code, the system automatically sets the Actor [status message](#actor-status) to something like `Actor exited with code 0`, and it might attempt to restart the Actor to recover from the error, depending on the system and Actor configuration.
 
+Additionally, as a convention, certain exit codes convey a specific reason for the failure. For now, only the exit code `2` has any meaning beyond failure. The default [status message](#actor-status) then varies according to the exit code when no custom message is set. The following table explains the meaning of each one:
+
+| Exit Code | Status      | Description             |
+| --------- | ----------- | ----------------------- |
+| `0`       | `SUCCEEDED` | Successful run          |
+| `1`       | `FAILED`    | Run failed              |
+| `2`       | `FAILED`    | Invalid input           |
+| `3-10`    | `FAILED`    | Reserved for future use |
+| `11-255`  | `FAILED`    | Run failed              |
+
 A preferred way to exit an Actor intentionally is using the `exit` or `fail` functions in SDK, as shown below. This has several advantages:
 
 - You can provide a custom status message for users to tell them what the Actor achieved, or why it failed and how they can fix it. This greatly improves user experience.
@@ -699,6 +709,7 @@ Actors have access to standard process environment variables. The Apify platform
 | `ACTOR_WEB_SERVER_PORT` | TCP port on which the Actor can start a HTTP server to receive messages from the outside world, either as [Actor web server](#actor-web-server) or in the [Standby mode](#standby-mode). |
 | `ACTOR_WEB_SERVER_URL` | A unique hard-to-guess URL under which the current Actor run's web server is accessible from the outside world. See [Actor web server](#actor-web-server) section for details. |
 | `ACTOR_STANDBY_URL` | A general public URL under which the Actor can be started and its web server accessed in the [Standby mode](#standby-mode). |
+| `ACTOR_MCP_CONNECTOR_BASE_URL` | Base URL that the Actor can use as a gateway to connect to MCP servers via MCP connectors. See [MCP Proxy](#mcp-proxy) for details. |
 | `ACTOR_MAX_PAID_DATASET_ITEMS` | A maximum number of results that will be charged to the user using a pay-per-result Actor. |
 | `ACTOR_MAX_TOTAL_CHARGE_USD` | The maximum amount of money in USD an Actor can charge its user. See [Charging money](#charging-money) for details. |
 
@@ -1200,6 +1211,14 @@ https://bob--screenshotter.apify.actor
 Unlike the live view URL reported in the `ACTOR_WEB_SERVER_URL` environment variable, the Standby URL is the same for all runs of the Actor, and it's intended to be publicly known. The Actor system can perform authentication of the requests going to the Standby URL using API tokens.
 
 Currently, the specific Standby mode settings, authentication options, or OpenAPI schema are not part of this Actor specification, but they might be in the future introduced as new settings in the `actor.json` file.
+
+### MCP Proxy
+
+Actors may interact with various MCP servers. The access to the MCP servers is going through the runtime-provided MCP proxy, to avoid passing credentials directly to the Actor.
+
+To connect to a specific MCP server, Actors should use URL `ACTOR_MCP_CONNECTOR_BASE_URL/<connectorId>`. The `connectorId` is passed on the input as a field with the `mcpConnector` resource type, and identifies the MCP server to connect to, with credentials and possible limits on the tools that might be used.
+
+While this feature is intended mostly for Actors running as agents, MCP servers can be used even without LLMs.
 
 ### Migration to another server
 
